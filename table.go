@@ -9,44 +9,49 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// Table represent database table data.
+// Table represent database table Data.
 type Table struct {
 	conn    *sql.DB
-	name    string
-	columns []string
-	data    [][]any
+	Name    string
+	Columns []string
+	Data    [][]any
+}
+
+// NewTable create new Table instance.
+func NewTable(conn *sql.DB, name string, columns []string, data [][]any) *Table {
+	return &Table{conn: conn, Name: name, Columns: columns, Data: data}
 }
 
 const insertTemplate = "INSERT INTO %s (%s) VALUES(%s)"
 
-// Prepare insert data to a table with prepared columns and data.
+// Prepare insert Data to a table with prepared Columns and Data.
 func (t *Table) Prepare(ctx context.Context) error {
-	if len(t.columns) != len(t.data) {
-		return fmt.Errorf("columns and data must have the same length")
+	if len(t.Columns) != len(t.Data) {
+		return fmt.Errorf("Columns and Data must have the same length")
 	}
 
 	query := fmt.Sprintf(
 		insertTemplate,
-		t.name,
-		strings.Join(t.columns, ", "),
-		placeholders(len(t.columns)),
+		t.Name,
+		strings.Join(t.Columns, ", "),
+		placeholders(len(t.Columns)),
 	)
 
-	for i, data := range t.data {
+	for i, data := range t.Data {
 		if _, err := t.conn.ExecContext(ctx, query, data...); err != nil {
-			return fmt.Errorf("exec query for data[%d]: %w", i, err)
+			return fmt.Errorf("exec query for Data[%d]: %w", i, err)
 		}
 	}
 
 	return nil
 }
 
-// Truncate remove all data from specific table.
+// Truncate remove all Data from specific table.
 func (t *Table) Truncate(ctx context.Context) error {
-	query := fmt.Sprintf("TRUNCATE TABLE %s;", t.name)
+	query := fmt.Sprintf("TRUNCATE TABLE %s;", t.Name)
 
 	if _, err := t.conn.ExecContext(ctx, query); err != nil {
-		return fmt.Errorf("exec query for %s: %w", t.name, err)
+		return fmt.Errorf("exec query for %s: %w", t.Name, err)
 	}
 
 	return nil
