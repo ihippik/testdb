@@ -20,8 +20,8 @@ func NewTables(db *sql.DB, tables []Table) *Tables {
 	return &Tables{db: db, tables: tables}
 }
 
-// Truncate remove Data from all presented tables.
-func (ts *Tables) Truncate(ctx context.Context) error {
+// Teardown remove Data from all presented tables.
+func (ts *Tables) Teardown(ctx context.Context) error {
 	names := make([]string, 0, len(ts.tables))
 
 	for _, table := range ts.tables {
@@ -40,12 +40,12 @@ func (ts *Tables) Truncate(ctx context.Context) error {
 	return nil
 }
 
-// Prepare Data for each presented table.
-func (ts *Tables) Prepare(ctx context.Context) error {
+// Setup Data for each presented table.
+func (ts *Tables) Setup(ctx context.Context) error {
 	for _, table := range ts.tables {
 		table.conn = ts.db
 
-		if err := table.Prepare(ctx); err != nil {
+		if err := table.Setup(ctx); err != nil {
 			return fmt.Errorf("error preparing table: %w", err)
 		}
 	}

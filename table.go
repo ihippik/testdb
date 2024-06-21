@@ -9,7 +9,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// Table represent database table Data.
+// Table represent database table data.
 type Table struct {
 	conn    *sql.DB
 	Name    string
@@ -27,8 +27,8 @@ const (
 	truncateTemplate = "TRUNCATE %s;"
 )
 
-// Prepare insert Data to a table with prepared Columns and Data.
-func (t *Table) Prepare(ctx context.Context) error {
+// Setup insert Data to a table with prepared Columns and Data.
+func (t *Table) Setup(ctx context.Context) error {
 	query := fmt.Sprintf(
 		insertTemplate,
 		t.Name,
@@ -49,8 +49,8 @@ func (t *Table) Prepare(ctx context.Context) error {
 	return nil
 }
 
-// Truncate remove all Data from specific table.
-func (t *Table) Truncate(ctx context.Context) error {
+// Teardown remove all data from specific table.
+func (t *Table) Teardown(ctx context.Context) error {
 	query := fmt.Sprintf(truncateTemplate, t.Name)
 
 	if _, err := t.conn.ExecContext(ctx, query); err != nil {
