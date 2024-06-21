@@ -21,16 +21,18 @@ func NewTables(db *sql.DB, tables []Table) *Tables {
 }
 
 // Truncate remove Data from all presented tables.
-func (ts Tables) Truncate(ctx context.Context) error {
-	names := make([]string, len(ts.tables))
+func (ts *Tables) Truncate(ctx context.Context) error {
+	names := make([]string, 0, len(ts.tables))
 
 	for _, table := range ts.tables {
 		names = append(names, table.Name)
 	}
 
+	query := fmt.Sprintf(truncateTemplate, strings.Join(names, ","))
+
 	if _, err := ts.db.ExecContext(
 		ctx,
-		fmt.Sprintf("TRUNCATE TABLE %s;", strings.Join(names, ",")),
+		query,
 	); err != nil {
 		return fmt.Errorf("error truncating tables: %w", err)
 	}
@@ -39,7 +41,7 @@ func (ts Tables) Truncate(ctx context.Context) error {
 }
 
 // Prepare Data for each presented table.
-func (ts Tables) Prepare(ctx context.Context) error {
+func (ts *Tables) Prepare(ctx context.Context) error {
 	for _, table := range ts.tables {
 		table.conn = ts.db
 

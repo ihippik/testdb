@@ -22,14 +22,13 @@ func NewTable(conn *sql.DB, name string, columns []string, data [][]any) *Table 
 	return &Table{conn: conn, Name: name, Columns: columns, Data: data}
 }
 
-const insertTemplate = "INSERT INTO %s (%s) VALUES(%s)"
+const (
+	insertTemplate   = "INSERT INTO %s (%s) VALUES(%s);"
+	truncateTemplate = "TRUNCATE %s;"
+)
 
 // Prepare insert Data to a table with prepared Columns and Data.
 func (t *Table) Prepare(ctx context.Context) error {
-	if len(t.Columns) != len(t.Data) {
-		return fmt.Errorf("Columns and Data must have the same length")
-	}
-
 	query := fmt.Sprintf(
 		insertTemplate,
 		t.Name,
@@ -38,8 +37,12 @@ func (t *Table) Prepare(ctx context.Context) error {
 	)
 
 	for i, data := range t.Data {
+		if len(t.Columns) != len(data) {
+			return fmt.Errorf("columns and data[%d] must have the same length", i)
+		}
+
 		if _, err := t.conn.ExecContext(ctx, query, data...); err != nil {
-			return fmt.Errorf("exec query for Data[%d]: %w", i, err)
+			return fmt.Errorf("exec query for data[%d]: %w", i, err)
 		}
 	}
 
@@ -48,7 +51,7 @@ func (t *Table) Prepare(ctx context.Context) error {
 
 // Truncate remove all Data from specific table.
 func (t *Table) Truncate(ctx context.Context) error {
-	query := fmt.Sprintf("TRUNCATE TABLE %s;", t.Name)
+	query := fmt.Sprintf(truncateTemplate, t.Name)
 
 	if _, err := t.conn.ExecContext(ctx, query); err != nil {
 		return fmt.Errorf("exec query for %s: %w", t.Name, err)
