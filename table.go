@@ -24,7 +24,7 @@ func NewTable(conn *sql.DB, name string, columns []string, data [][]any) *Table 
 
 const (
 	insertTemplate   = "INSERT INTO %s (%s) VALUES(%s);"
-	truncateTemplate = "TRUNCATE %s;"
+	truncateTemplate = "TRUNCATE %s CASCADE;"
 )
 
 // Setup insert Data to a table with prepared Columns and Data.
