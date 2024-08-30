@@ -30,10 +30,7 @@ func (ts *Tables) Teardown(ctx context.Context) error {
 
 	query := fmt.Sprintf(truncateTemplate, strings.Join(names, ","))
 
-	if _, err := ts.db.ExecContext(
-		ctx,
-		query,
-	); err != nil {
+	if _, err := ts.db.ExecContext(ctx, query); err != nil {
 		return fmt.Errorf("error truncating tables: %w", err)
 	}
 
@@ -47,6 +44,17 @@ func (ts *Tables) Setup(ctx context.Context) error {
 
 		if err := table.Setup(ctx); err != nil {
 			return fmt.Errorf("error preparing table: %w", err)
+		}
+	}
+
+	return nil
+}
+
+// Cleanup remove Data from all presented tables by specific primary key.
+func (ts *Tables) Cleanup(ctx context.Context, keys ...string) error {
+	for _, table := range ts.tables {
+		if err := table.Cleanup(ctx); err != nil {
+			return fmt.Errorf("error cleanup table `%s`: %w", table.Name, err)
 		}
 	}
 

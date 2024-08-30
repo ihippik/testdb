@@ -35,4 +35,5 @@ tables := testdb.NewTables(conn, []testdb.Table{
 
 tables.Setup(ctx) // INSERT
 tables.Teardown(ctx) // TRUNCATE
+tables.Cleanup(ctx) // DELETE by primary key (t.Keys)
 ```
