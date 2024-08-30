@@ -51,8 +51,10 @@ func (ts *Tables) Setup(ctx context.Context) error {
 }
 
 // Cleanup remove Data from all presented tables by specific primary key.
-func (ts *Tables) Cleanup(ctx context.Context, keys ...string) error {
+func (ts *Tables) Cleanup(ctx context.Context) error {
 	for _, table := range ts.tables {
+		table.conn = ts.db
+
 		if err := table.Cleanup(ctx); err != nil {
 			return fmt.Errorf("error cleanup table `%s`: %w", table.Name, err)
 		}
